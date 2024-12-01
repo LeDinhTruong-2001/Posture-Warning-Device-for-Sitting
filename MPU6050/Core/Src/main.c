@@ -28,7 +28,7 @@
 #include "stdlib.h"
 
 //webserver
-#include "ESP8266_HAL.h"
+//#include "ESP8266_HAL.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +63,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_TIM2_Init(void);
+//static void MX_TIM2_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -180,7 +180,7 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-  MX_TIM2_Init();
+  //MX_TIM2_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   lcd_init();
@@ -194,12 +194,10 @@ int main(void)
   lcd_send_string ("MPU6050");
 
   char buf[20];
-  HAL_TIM_Base_Start_IT(&htim2);
+  //HAL_TIM_Base_Start_IT(&htim2);
   uint32_t previousMillis = 0;
-  uint32_t interval = 1000; // Khoảng th�?i gian 1 giây (1000 ms)
+  uint32_t interval = 1000; // Khoảng thoi gian 1 giây (1000 ms)
 
-  //webserver
-  ESP_Init("Tuong","123456789");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -209,11 +207,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
 	  MPU6050_Read_Accel ();
 	  MPU6050_Read_Gyro ();
-
 
 
 	  lcd_clear();
@@ -230,28 +225,36 @@ int main(void)
       lcd_put_cur(0, 11);
       lcd_send_string (buf);
 
-      sprintf(buf, "%.2f", roll);
+      sprintf(buf, "%d", abs(roll));
       lcd_put_cur(1, 0);
       lcd_send_string (buf);
       HAL_Delay(250);
 
       uint32_t currentMillis = HAL_GetTick();
+
+
+
+
 	  if(dem==0)
 	  {
 		  Pre_roll = roll;
 		  dem =1;
 	  }
-	  // Kiểm tra nếu đã trôi qua 1 giây
-	  if (currentMillis - previousMillis >= 5*interval) {
-		  previousMillis = currentMillis; // Cập nhật thoi điểm mới
+	  // Kiểm tra nếu đã trôi qua 5 giây
+	  if ((abs(currentMillis - previousMillis)) >= (5*interval)) {
+		  previousMillis =currentMillis; // Cập nhật thoi điểm mới
 		  // Thực hiện một số thao tác sau mỗi 1 giây
-		  if((abs(roll)<=70.0) && (abs(Pre_roll)<=70))
+		  if((abs(roll)<=70) && (abs(Pre_roll)<=70))
 		  {
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1); // Ví dụ: đổi trạng thái LED
-		  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		  dem=0;
-		  HAL_Delay(1000);
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1); // Ví dụ: đổi trạng thái LED
+			  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+			  dem=0;
+			  HAL_Delay(1000);
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
+
+		  //webserver
+		  //Server_Start(&roll);
+
 		  }
 	  }
 
@@ -334,45 +337,46 @@ static void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_TIM2_Init(void)
-{
 
-  /* USER CODE BEGIN TIM2_Init 0 */
-
-  /* USER CODE END TIM2_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM2_Init 1 */
-
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 7999;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 99;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM2_Init 2 */
-
-  /* USER CODE END TIM2_Init 2 */
-
-}
+//static void MX_TIM2_Init(void)
+//{
+//
+//  /* USER CODE BEGIN TIM2_Init 0 */
+//
+//  /* USER CODE END TIM2_Init 0 */
+//
+//  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+//  TIM_MasterConfigTypeDef sMasterConfig = {0};
+//
+//  /* USER CODE BEGIN TIM2_Init 1 */
+//
+//  /* USER CODE END TIM2_Init 1 */
+//  htim2.Instance = TIM2;
+//  htim2.Init.Prescaler = 7999;
+//  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+//  htim2.Init.Period = 99;
+//  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+//  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+//  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+//  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+//  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+//  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+//  {
+//    Error_Handler();
+//  }
+//  /* USER CODE BEGIN TIM2_Init 2 */
+//
+//  /* USER CODE END TIM2_Init 2 */
+//
+//}
 
 /**
   * @brief USART1 Initialization Function

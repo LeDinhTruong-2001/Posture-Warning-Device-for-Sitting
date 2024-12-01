@@ -11,6 +11,7 @@
 #include "stdio.h"
 #include "string.h"
 
+
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart3;
 
@@ -22,21 +23,15 @@ char buffer[20];
 
 
 char *Basic_inclusion = "<!DOCTYPE html> <html>\n<head><meta name=\"viewport\"\
-		content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n\
-		<title>LED CONTROL</title>\n<style>html { font-family: Helvetica; \
-		display: inline-block; margin: 0px auto; text-align: center;}\n\
-		body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\
-		h3 {color: #444444;margin-bottom: 50px;}\n.button {display: block;\
-		width: 80px;background-color: #1abc9c;border: none;color: white;\
-		padding: 13px 30px;text-decoration: none;font-size: 25px;\
-		margin: 0px auto 35px;cursor: pointer;border-radius: 4px;}\n\
-		.button-on {background-color: #1abc9c;}\n.button-on:active \
-		{background-color: #16a085;}\n.button-off {background-color: #34495e;}\n\
-		.button-off:active {background-color: #2c3e50;}\np {font-size: 14px;color: #888;margin-bottom: 10px;}\n\
-		</style>\n</head>\n<body>\n<h1>ESP8266 LED CONTROL</h1>\n";
+        content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n\
+        <title>LED CONTROL</title>\n<style>html { font-family: Helvetica; \
+        display: inline-block; margin: 0px auto; text-align: center;}\n\
+        body{margin-top: 50px;} h1 {color: #444444;margin: 50px auto 30px;}\n\
+        h3 {color: #444444;margin-bottom: 50px;}\np {font-size: 14px;color: #888;margin-bottom: 10px;}\n\
+        </style>\n</head>\n<body>\n<h1>CẢNH BÁO TƯ THẾ NGỒI</h1>\n";
 
-char *LED_ON = "<p>LED Status: ON</p><a class=\"button button-off\" href=\"/ledoff\">OFF</a>";
-char *LED_OFF = "<p>LED1 Status: OFF</p><a class=\"button button-on\" href=\"/ledon\">ON</a>";
+char *LED_ON = "<p>LED Status: ON</p>";
+char *LED_OFF = "<p>LED Status: OFF</p>";
 char *Terminate = "</body></html>";
 
 
@@ -155,30 +150,40 @@ void Server_Handle (char *str, int Link_ID)
 
 }
 
-void Server_Start (void)
+void Server_Start (float *roll)
 {
-	char buftocopyinto[64] = {0};
+	//char buftocopyinto[64] = {0};
 	char Link_ID;
 	while (!(Get_after("+IPD,", 1, &Link_ID, wifi_uart)));
+
 	Link_ID -= 48;
-	while (!(Copy_upto(" HTTP/1.1", buftocopyinto, wifi_uart)));
-	if (Look_for("/ledon", buftocopyinto) == 1)
+
+	//while (!(Copy_upto(" HTTP/1.1", buftocopyinto, wifi_uart)));
+	if (*roll <=70.0)
 	{
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 		Server_Handle("/ledon",Link_ID);
+
 	}
 
-	else if (Look_for("/ledoff", buftocopyinto) == 1)
-	{
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-		Server_Handle("/ledoff",Link_ID);
-	}
+//	while (!(Copy_upto(" HTTP/1.1", buftocopyinto, wifi_uart)));
+//	if (Look_for("/ledon", buftocopyinto) == 1)
+//	{
+//		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+//		Server_Handle("/ledon",Link_ID);
+//	}
+//
+//	else if (Look_for("/ledoff", buftocopyinto) == 1)
+//	{
+//		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
+//		Server_Handle("/ledoff",Link_ID);
+//	}
+//
+	//else if (Look_for("/favicon.ico", buftocopyinto) == 1);
+//
 
-	else if (Look_for("/favicon.ico", buftocopyinto) == 1);
-
-	else
 	{
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
 		Server_Handle("/ ", Link_ID);
+		Server_Handle("/ledoff",Link_ID);
 	}
 }
